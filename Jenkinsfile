@@ -10,14 +10,14 @@ pipeline {
             }
           }
           steps {
-              sh '''
-                ls -la
-                node --version
-                npm --version
-                npm ci
-                npm run build
-                ls -la
-              '''
+            sh '''
+              ls -la
+              node --version
+              npm --version
+              npm ci
+              npm run build
+              ls -la
+            '''
           }
         }
         stage('Test') {
@@ -30,6 +30,7 @@ pipeline {
                 echo "file does not exist"
                 exit 1
               fi
+              npm test
             '''
           }
         }
