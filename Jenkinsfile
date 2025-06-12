@@ -34,10 +34,11 @@ pipeline {
             }
 
             steps {
-                sh '''
-                    #test -f build/index.html
-                    npm test
-                '''
+              sh '''
+                  mkdir -p tmp-test-results
+                  chmod -R 777 tmp-test-results
+                  JEST_JUNIT_OUTPUT=tmp-test-results/junit.xml npm test
+              '''
             }
         }
 
@@ -60,9 +61,9 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            junit 'jest-results/junit.xml'
-        }
+  post {
+    always {
+        junit 'tmp-test-results/junit.xml'
     }
+  }
 }
