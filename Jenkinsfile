@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     stages {
-
         stage('Build') {
             agent {
                 docker {
@@ -11,13 +10,14 @@ pipeline {
                 }
             }
             steps {
+                // Ensure a clean workspace to avoid permission issues
+                deleteDir()
                 sh '''
-                    ls -la
+                    echo "🛠️ Starting Build..."
                     node --version
                     npm --version
                     npm ci
                     npm run build
-                    ls -la
                 '''
             }
         }
@@ -29,11 +29,12 @@ pipeline {
                     reuseNode true
                 }
             }
-
             steps {
                 sh '''
-                    #test -f build/index.html
-                    npm test
+                    echo "🧪 Running Unit Tests..."
+                    mkdir -p tmp-test-results
+                    chmod -R 777 tmp-test-results
+                    JEST_JUNIT_OUTPUT=tmp-test-results/junit.xml npm test
                 '''
             }
         }
@@ -45,9 +46,9 @@ pipeline {
                     reuseNode true
                 }
             }
-
             steps {
                 sh '''
+                    echo "🎭 Running E2E Tests..."
                     rm -rf node_modules
                     npm install serve
                     node_modules/.bin/serve -s build &
@@ -60,7 +61,8 @@ pipeline {
 
     post {
         always {
-            junit 'jest-results/junit.xml'
+            echo "📦 Publishing Test Results..."
+            junit 'tmp-test-results/junit.xml'
         }
     }
 }
