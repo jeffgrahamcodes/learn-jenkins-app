@@ -3,13 +3,11 @@ pipeline {
 
     stages {
 
-
         stage('Build') {
             agent {
                 docker {
                     image 'node:18-alpine'
                     reuseNode true
-                    args '-u 0:0'
                 }
             }
             steps {
@@ -24,7 +22,6 @@ pipeline {
             }
         }
 
-
         stage('Test') {
             agent {
                 docker {
@@ -34,11 +31,10 @@ pipeline {
             }
 
             steps {
-              sh '''
-                  mkdir -p tmp-test-results
-                  chmod -R 777 tmp-test-results
-                  JEST_JUNIT_OUTPUT=tmp-test-results/junit.xml npm test
-              '''
+                sh '''
+                    #test -f build/index.html
+                    npm test
+                '''
             }
         }
 
@@ -52,6 +48,7 @@ pipeline {
 
             steps {
                 sh '''
+                    rm -rf node_modules
                     npm install serve
                     node_modules/.bin/serve -s build &
                     sleep 10
@@ -61,9 +58,9 @@ pipeline {
         }
     }
 
-  post {
-    always {
-        junit 'tmp-test-results/junit.xml'
+    post {
+        always {
+            junit 'jest-results/junit.xml'
+        }
     }
-  }
 }
