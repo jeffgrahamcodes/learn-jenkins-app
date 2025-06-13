@@ -104,6 +104,12 @@ pipeline {
             }
         }
 
+        stage('Approval') {
+          sh '''
+            echo "Approval"
+          '''
+        }
+
         stage('Deploy Prod') {
             agent {
                 docker {
