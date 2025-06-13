@@ -105,9 +105,11 @@ pipeline {
         }
 
         stage('Approval') {
-          sh '''
-            echo "Approval"
-          '''
+          steps {
+            sh '''
+              echo "Approval"
+            '''
+          }
         }
 
         stage('Deploy Prod') {
