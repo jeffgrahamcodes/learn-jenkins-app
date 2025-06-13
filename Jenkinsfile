@@ -28,9 +28,9 @@ pipeline {
             }
         }
 
-
         stage('Tests') {
             parallel {
+
                 stage('Unit Tests') {
                     agent {
                         docker {
@@ -75,13 +75,14 @@ pipeline {
                                 keepAll: false,
                                 reportDir: 'playwright-report',
                                 reportFiles: 'index.html',
-                                reportName: 'Playwright HTML Report',
+                                reportName: 'Playwright Local Report',
                                 reportTitles: '',
                                 useWrapperFileDirectly: true
                             ])
                         }
                     }
                 }
+
             } // end parallel
         } // end stage 'Tests'
 
@@ -102,5 +103,38 @@ pipeline {
                 '''
             }
         }
+
+        stage('Prod E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                }
+            }
+            environment {
+              CI_ENVIRONMENT_URL = 'https://incandescent-meerkat-e610df.netlify.app'
+            }
+            steps {
+                sh '''
+                    npx playwright test
+                '''
+            }
+            post {
+                always {
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        icon: '',
+                        keepAll: false,
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright E2E Report',
+                        reportTitles: '',
+                        useWrapperFileDirectly: true
+                    ])
+                }
+            }
+        }
+
     } // end stages
 } // end pipeline
