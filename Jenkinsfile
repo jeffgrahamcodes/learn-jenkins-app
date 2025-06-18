@@ -36,13 +36,12 @@ pipeline {
             docker {
               image 'my-aws-cli'
               reuseNode true
-              args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
+              args "-v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
             }
           }
 
           steps {
             sh '''
-              amazon-linux-extras install docker
               docker build -t my-jenkins-app .
             '''
           }
@@ -53,7 +52,7 @@ pipeline {
             docker {
               image 'my-aws-cli'
               reuseNode true
-              args "-u root --entrypoint=''"
+              args "--entrypoint=''"
             }
           }
 
